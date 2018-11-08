@@ -2,6 +2,7 @@ import codecs
 
 import binascii
 import serial
+
 boundrate=9600
 myport= 'COM14'
 const= 16777216
@@ -35,8 +36,8 @@ def serial_write():
         #port='/dev/ttyCOM14',
         port= myport,
         baudrate=boundrate,
-        stopbits=serial.STOPBITS_ONE,
-    )
+        stopbits=serial.STOPBITS_ONE)
+
     ser.write(b'01100010 00110010 00110000 00110000 00110000 00110000 00110000 00110000 00110000 00101100 00110000 00110000 00110000 00110000 00110000 00110000 00110000 00110000')
 
 print (angToDEC(180))

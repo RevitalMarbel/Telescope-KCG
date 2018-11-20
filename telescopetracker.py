@@ -10,7 +10,7 @@ import time;  # This is required to include time module.
 now = time.time()
 import struct
 boundrate=9600
-telPort= 'COM6'
+telPort= 'COM10'
 loraPort= 'COM9'
 br=9600
 const= 16777216
@@ -21,7 +21,8 @@ myLon=35.2095336
 myAlt=698.2
 
 file = open('telescope_tracker %s .txt' %now , 'w')
-file.write("my coords: mylat: %f mylon: %f myalt: %f" % myLat %myLon % myAlt )
+file.write("mycoords: lat" + str(myLat) + "lon" + str(myLon) + " alt " + str(myAlt))
+#file.write("my coords mylat:"+ (str)myLat + "mylon:" + (str)myLon + "myalt" + (str)myAlt+"" )
 # #Lab
 # myLat=32.097763
 # myLon=34.963255
@@ -331,8 +332,8 @@ def main_loop():
     oldAlt = alt
     lat, lon, alt = get_lora()
     t=time.time()
-    file.write(t)
-    file.write("from lora: lat %f lon %f alt %f " %lat %lon %alt)
+    file.write(str(t))
+    file.write("from lora: lat"+str(lat) +"lon"+ str(lon)+" alt "+str(alt) )
     if (lat-30  <10  and lat-30  >0 and  lon-30  <10  and lon-30):
 
 
@@ -351,10 +352,11 @@ def main_loop():
             alt = angToDEC(yaw)
 
             serial_write(azimut, alt)
-            file.write(" yaw :%f  pich : %f" %yaw %pich)
+            #file.write("from lora: lat" + str(lat) + "lon" + str(lon) + " alt " + str(alt))
+            file.write(" yaw :" +str(yaw)+ "pich :" +str(pich) )
     else:
         print("bad coordinates", lat , lon )
-        file.write("bad coordinates  %f  %f " %lat  %lon )
+        file.write("bad coordinates " +str(lat)+ " "+str(lon) )
         global timeToSleep
     time.sleep(timeToSleep)
 

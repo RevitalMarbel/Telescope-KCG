@@ -1,7 +1,7 @@
 import telescopetracker
 
 boundrate=9600
-telPort= 'COM6'
+telPort= 'COM11'
 loraPort= 'COM9'
 br=9600
 const= 16777216
@@ -57,9 +57,14 @@ def set_te_to_zero():
 
     telescopetracker.serial_write(azimut, alt)
 
+def calibration(lat ,lon , alt):
+    res= telescopetracker.computeYawPich(telescopetracker.myLat, telescopetracker.myLon, telescopetracker.myAlt,lat, lon , alt )
+    print (res)
+    return res
 
 #main
-test_lora()
-test_telescope_lat_lon()
-test_telescope_yaw_pich()
-set_te_to_zero()
+# test_lora()
+# test_telescope_lat_lon()
+test_telescope_yaw_pich(292.9382, 0)
+# set_te_to_zero()
+#calibration( 32.104831,  35.214407, 685)

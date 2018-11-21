@@ -10,18 +10,34 @@ import time;  # This is required to include time module.
 now = time.time()
 import struct
 boundrate=9600
-telPort= 'COM10'
+telPort= 'COM13'
 loraPort= 'COM9'
 br=9600
 const= 16777216
 timeToSleep=2
-#Binyan 3
-myLat=32.1039659
-myLon=35.2095336
-myAlt=698.2
 
+
+#Binyan 3
+myLat=32.10371
+myLon=35.21128
+myAlt=685
+serTel = serial.Serial(
+        #port='/dev/ttyCOM14',
+        port= telPort,
+        baudrate=boundrate,
+        stopbits=serial.STOPBITS_ONE
+    )
+
+serLora = serial.Serial(
+        # port='/dev/ttyCOM14',
+        port=loraPort,
+        baudrate=br,
+        stopbits=serial.STOPBITS_ONE,
+           timeout=5
+
+    )
 file = open('telescope_tracker %s .txt' %now , 'w')
-file.write("mycoords: lat" + str(myLat) + "lon" + str(myLon) + " alt " + str(myAlt))
+file.write("mycoords: lat" + str(myLat) + "lon" + str(myLon) + " alt " + str(myAlt)+"\n")
 #file.write("my coords mylat:"+ (str)myLat + "mylon:" + (str)myLon + "myalt" + (str)myAlt+"" )
 # #Lab
 # myLat=32.097763
@@ -79,12 +95,7 @@ def text_to_bits(text, encoding='utf-8', errors='surrogatepass'):
     return bits.zfill(8 * ((len(bits) + 7) // 8))
 
 def serial_write(a1,a2):
-    ser = serial.Serial(
-        #port='/dev/ttyCOM14',
-        port= telPort,
-        baudrate=boundrate,
-        stopbits=serial.STOPBITS_ONE
-    )
+
     time.sleep(2)
 
     #a1 = 40000000
@@ -93,21 +104,21 @@ def serial_write(a1,a2):
     to_send = "b"+str(a1)+","+str(a2)+"b"
     print(to_send)
 
-    ser.write(to_send.encode())
+    serTel.write(to_send.encode())
 
 
 
 def get_location():
-    ser = serial.Serial(
-        # port='/dev/ttyCOM14',
-        port=telPort,
-        baudrate=boundrate,
-        stopbits=serial.STOPBITS_ONE
-    )
+    # ser = serial.Serial(
+    #     # port='/dev/ttyCOM14',
+    #     port=telPort,
+    #     baudrate=boundrate,
+    #     stopbits=serial.STOPBITS_ONE
+    # )
     time.sleep(2)
-    ser.write("z".encode())
+    serTel.write("z".encode())
     time.sleep(10)
-    line=ser.read(18)
+    line=serTel.read(18)
 
     print (line)
 
@@ -122,19 +133,15 @@ def get_lora():
     global lon
     global alt
 
-    ser = serial.Serial(
-        # port='/dev/ttyCOM14',
-        port=loraPort,
-        baudrate=br,
-        stopbits=serial.STOPBITS_ONE,
-           timeout=5
+    mlat=None
+    mlon=None
+    myLat=None
 
-    )
     #time.sleep(2)
     #ser.write("z".encode())
     time.sleep(1)
     print("serial reqd begin")
-    line=ser.readline()
+    line=serLora.readline()
     print("line", line)
     res=line.decode("utf-8")
     print("res", res)
@@ -179,8 +186,12 @@ def get_lora():
         #res=struct.unpack('3f', line)
         #res=float(line.strip('\x00'))
 
-    print (mlat, mlon,malt)
-    return mlat,mlon,malt
+
+    if(mlat is not None and mlon is not None and malt is not None):
+        return mlat,mlon,malt
+        print(mlat, mlon, malt)
+    else:
+        return lat ,lon, alt
 
 
 def get_lora_old():
@@ -332,8 +343,8 @@ def main_loop():
     oldAlt = alt
     lat, lon, alt = get_lora()
     t=time.time()
-    file.write(str(t))
-    file.write("from lora: lat"+str(lat) +"lon"+ str(lon)+" alt "+str(alt) )
+    file.write(str(t)+"\n")
+    file.write("from lora: lat"+str(lat) +"lon"+ str(lon)+" alt "+str(alt)+"\n" )
     if (lat-30  <10  and lat-30  >0 and  lon-30  <10  and lon-30):
 
 
@@ -353,10 +364,10 @@ def main_loop():
 
             serial_write(azimut, alt)
             #file.write("from lora: lat" + str(lat) + "lon" + str(lon) + " alt " + str(alt))
-            file.write(" yaw :" +str(yaw)+ "pich :" +str(pich) )
+            file.write(" yaw :" +str(yaw)+ "pich :" +str(pich)+"\n" )
     else:
         print("bad coordinates", lat , lon )
-        file.write("bad coordinates " +str(lat)+ " "+str(lon) )
+        file.write("bad coordinates " +str(lat)+ " "+str(lon)+"\n" )
         global timeToSleep
     time.sleep(timeToSleep)
 
@@ -399,5 +410,7 @@ def main():
         main_loop()
 
 if __name__=="__main__":
+    #move_to_angle(0, 0)
+    #move_to_angle(292.9382, 0)
     main()
     file.close()
